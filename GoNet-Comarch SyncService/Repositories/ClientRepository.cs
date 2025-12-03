@@ -22,7 +22,72 @@ namespace GoNet_Comarch_SyncService.Repositories
 
         public async Task<IEnumerable<Client>> GetClientsForImport()
         {
-            const string proc = "dbo.GaskaGetGoNetClientsForExport";
+            const string proc = "dbo.GaskaGetGoNetClientsForImport";
+
+            using var conn = await _db.GetOpenConnectionAsync();
+
+            var clientDict = new Dictionary<int, Client>();
+
+            var result = await conn.QueryAsync<Client, Address, Attribute, Client>(
+                proc,
+                (client, address, attribute) =>
+                {
+                    if (!clientDict.TryGetValue(client.ClientCrmId, out var existingClient))
+                    {
+                        existingClient = client;
+                        existingClient.Address = address;
+                        existingClient.Attributes = new List<Attribute>();
+                        clientDict.Add(existingClient.ClientCrmId, existingClient);
+                    }
+
+                    if (attribute != null)
+                        existingClient.Attributes.Add(attribute);
+
+                    return existingClient;
+                    return existingClient;
+                },
+                splitOn: "City,ClassName",
+                commandType: System.Data.CommandType.StoredProcedure
+            );
+
+            return clientDict.Values;
+        }
+
+        public async Task<IEnumerable<ClientBranch>> GetClientBranchesForImport()
+        {
+            const string proc = "dbo.GaskaGetGoNetBranchesForImport";
+
+            using var conn = await _db.GetOpenConnectionAsync();
+
+            var branchDict = new Dictionary<int, ClientBranch>();
+
+            var result = await conn.QueryAsync<ClientBranch, Address, Attribute, ClientBranch>(
+                proc,
+                (branch, address, attribute) =>
+                {
+                    if (!branchDict.TryGetValue(branch.BranchCrmId, out var existingBranch))
+                    {
+                        existingBranch = branch;
+                        existingBranch.Address = address;
+                        existingBranch.Attributes = new List<Attribute>();
+                        branchDict.Add(existingBranch.BranchCrmId, existingBranch);
+                    }
+
+                    if (attribute != null)
+                        existingBranch.Attributes.Add(attribute);
+
+                    return existingBranch;
+                },
+                splitOn: "City,ClassName",
+                commandType: System.Data.CommandType.StoredProcedure
+            );
+
+            return branchDict.Values;
+        }
+
+        public async Task<IEnumerable<Client>> GetClientsForUpdate()
+        {
+            const string proc = "dbo.GaskaGetGoNetClientsForUpdate";
 
             using var conn = await _db.GetOpenConnectionAsync();
 
@@ -45,26 +110,43 @@ namespace GoNet_Comarch_SyncService.Repositories
 
                     return existingClient;
                 },
-                splitOn: "City,AttributeId",
+                splitOn: "City,ClassName",
                 commandType: System.Data.CommandType.StoredProcedure
             );
 
             return clientDict.Values;
         }
 
-        public Task<IEnumerable<ClientBranch>> GetClientBranchesForImport()
+        public async Task<IEnumerable<ClientBranch>> GetClientBranchesForUpdate()
         {
-            throw new NotImplementedException();
-        }
+            const string proc = "dbo.GaskaGetGoNetBranchesForUpdate";
 
-        public Task<IEnumerable<Client>> GetClientsForUpdate()
-        {
-            throw new NotImplementedException();
-        }
+            using var conn = await _db.GetOpenConnectionAsync();
 
-        public Task<IEnumerable<ClientBranch>> GetClientBranchesForUpdate()
-        {
-            throw new NotImplementedException();
+            var branchDict = new Dictionary<int, ClientBranch>();
+
+            var result = await conn.QueryAsync<ClientBranch, Address, Attribute, ClientBranch>(
+                proc,
+                (branch, address, attribute) =>
+                {
+                    if (!branchDict.TryGetValue(branch.BranchCrmId, out var existingBranch))
+                    {
+                        existingBranch = branch;
+                        existingBranch.Address = address;
+                        existingBranch.Attributes = new List<Attribute>();
+                        branchDict.Add(existingBranch.BranchCrmId, existingBranch);
+                    }
+
+                    if (attribute != null)
+                        existingBranch.Attributes.Add(attribute);
+
+                    return existingBranch;
+                },
+                splitOn: "City,ClassName",
+                commandType: System.Data.CommandType.StoredProcedure
+            );
+
+            return branchDict.Values;
         }
 
         public async Task UpdateClient(Client client)
@@ -81,7 +163,8 @@ namespace GoNet_Comarch_SyncService.Repositories
             parameters.Add("@Regon", client.Regon);
             parameters.Add("@Description", client.Description);
             parameters.Add("@Email", client.Email);
-            parameters.Add("@Phone", client.Phone);
+            parameters.Add("@Phone", client.Phone1);
+            parameters.Add("@Phone2", client.Phone1);
             parameters.Add("@Website", client.Website);
             parameters.Add("@Price", client.Price);
 
@@ -109,7 +192,8 @@ namespace GoNet_Comarch_SyncService.Repositories
             parameters.Add("@Regon", branch.Regon);
             parameters.Add("@Description", branch.Description);
             parameters.Add("@Email", branch.Email);
-            parameters.Add("@Phone", branch.Phone);
+            parameters.Add("@Phone", branch.Phone1);
+            parameters.Add("@Phone", branch.Phone2);
             parameters.Add("@Website", branch.Website);
             parameters.Add("@Price", branch.Price);
 

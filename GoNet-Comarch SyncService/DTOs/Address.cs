@@ -11,5 +11,6 @@ namespace GoNet_Comarch_SyncService.DTOs
         public string HomeNo { get; set; } = string.Empty;
         public string PostalCode { get; set; } = default!;
         public string Country { get; set; } = default!;
+        public int ExpCountry { get; set; } = default!;
     }
 }

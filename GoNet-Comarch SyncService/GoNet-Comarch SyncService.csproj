@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="cdn_api20241_core">
-      <HintPath>..\..\..\cdn_api20241_core.dll</HintPath>
+      <HintPath>Tools\cdn_api20241_core.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

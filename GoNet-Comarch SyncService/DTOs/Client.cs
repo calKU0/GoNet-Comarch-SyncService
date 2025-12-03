@@ -15,9 +15,10 @@ namespace GoNet_Comarch_SyncService.DTOs
         public string Regon { get; set; } = default!;
         public string Description { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
+        public string Phone1 { get; set; } = string.Empty;
+        public string Phone2 { get; set; } = string.Empty;
         public string Website { get; set; } = string.Empty;
-        public string Price { get; set; } = default!;
+        public int Price { get; set; } = default!;
         public Address Address { get; set; } = default!;
         public List<Attribute> Attributes { get; set; } = default!;
     }
